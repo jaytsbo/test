@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人財務深層分析與資產儀表板</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-full flex flex-col antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 border-b border-slate-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-brand-500/20 text-brand-400 rounded-xl border border-brand-500/30">
+                    <i data-lucide="wallet" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                        個人財務深層分析儀表板
+                        <span class="text-xs font-normal bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2.5 py-0.5 rounded-full">已精密勾稽</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-0.5">分析區間：2026/08/05 ～ 2026/08/14（共 10 天）</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <div class="px-3 py-1.5 bg-slate-800 rounded-lg border border-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-slate-300">資料已同步最新記帳版本</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Overview Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Asset Growth Card -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">期末總資產</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" id="kpi-net-worth">$40,463</h3>
+                    </div>
+                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    <span>+$725 (+1.82%)</span>
+                    <span class="text-slate-400 font-normal">比起期初 $39,738</span>
+                </div>
+            </div>
+
+            <!-- Real Income Card -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">實質總收入</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" id="kpi-real-income">$4,559</h3>
+                    </div>
+                    <div class="p-2.5 bg-blue-100 text-blue-700 rounded-xl">
+                        <i data-lucide="arrow-down-left" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>含薪資$1,413、媽媽補貼$1,100等</span>
+                </div>
+            </div>
+
+            <!-- Personal Pure Spending Card -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">個人純支出 (剔除代墊)</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1" id="kpi-pure-expense">$3,834</h3>
+                    </div>
+                    <div class="p-2.5 bg-rose-100 text-rose-700 rounded-xl">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-slate-500 flex items-center justify-between">
+                    <span>原始刷卡/付現: $4,869</span>
+                    <span class="text-emerald-600 font-medium">代墊已扣除 $1,035</span>
+                </div>
+            </div>
+
+            <!-- Daily Food Average Card -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">日均伙食費 (10天)</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1">$138 <span class="text-xs font-normal text-slate-500">/天</span></h3>
+                    </div>
+                    <div class="p-2.5 bg-indigo-100 text-indigo-700 rounded-xl">
+                        <i data-lucide="utensils" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-indigo-600 font-medium flex items-center gap-1">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                    <span>飲食花費控制優良 (個人純餐費$1,380)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Highlight: Account Correction Banner -->
+        <div class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <div class="p-2 bg-amber-500/10 text-amber-600 rounded-lg shrink-0 mt-0.5 sm:mt-0">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-amber-900">記帳優化提示：內部轉帳已自動重分類 correction</h4>
+                    <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                        原記帳表中 <b>08/09 郵局➔LINE Bank ($2,000)</b> 與 <b>08/12 郵局➔LINE Pay ($200)</b> 被列於「醫療/雜項」，這會虛增雜項花費 $2,200。本儀表板已自動校正為「內部轉帳」，確保消費統計精準無誤！
+                    </p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-300/50 rounded-full text-xs font-semibold shrink-0">
+                數據已校正
+            </span>
+        </div>
+
+        <!-- Charts Grid Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Expense Category Chart -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i>
+                        個人實質消費類別佔比
+                    </h3>
+                    <span class="text-xs text-slate-500">純消費 $3,834</span>
+                </div>
+                <div class="relative flex-grow flex items-center justify-center min-h-[240px]">
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+                <!-- Legend list inside card -->
+                <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 text-xs">
+                    <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>🍱 食</span>
+                        <span class="font-bold text-slate-700">$1,380 (36%)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>✂️ 醫/雜</span>
+                        <span class="font-bold text-slate-700">$1,050 (27.4%)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>🧗 育樂</span>
+                        <span class="font-bold text-slate-700">$760 (19.8%)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>🛵 行</span>
+                        <span class="font-bold text-slate-700">$595 (15.5%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Assets Distribution -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col lg:col-span-2">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="landmark" class="w-4 h-4 text-blue-600"></i>
+                        各帳戶期初 vs. 期末資產對比
+                    </h3>
+                    <span class="text-xs text-slate-500">共 5 大資金管道</span>
+                </div>
+                <div class="relative flex-grow min-h-[260px]">
+                    <canvas id="accountBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advance Payment Tracking & Financial Insights Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Advance Payment Management (代墊款管理專區) -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="hand-coins" class="w-5 h-5 text-indigo-600"></i>
+                        代墊款與清算記錄
+                    </h3>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">100% 全數回收</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">代墊款項均在極短時間內透過現金或 LINE Pay 平帳，記帳品質極佳。</p>
+
+                <div class="space-y-3 flex-grow">
+                    <!-- Advance 1 -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-800">08/06 午餐代墊</span>
+                            <span class="font-semibold text-rose-600">代墊款 $240 (總付 $320)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-emerald-500 h-1.5 rounded-full w-full"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-slate-500">
+                            <span>收回細節: 現金$150 + LINE Pay $90</span>
+                            <span class="text-emerald-600 font-semibold">已結清 (100%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Advance 2 -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-800">08/13 午餐代墊</span>
+                            <span class="font-semibold text-rose-600">代墊款 $795 (總付 $1,130)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-emerald-500 h-1.5 rounded-full w-full"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-slate-500">
+                            <span>收回細節: LINE Pay $270 + $290 + $235</span>
+                            <span class="text-emerald-600 font-semibold">已結清 (含折抵止滑粉$25)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-xs text-emerald-800 flex items-start gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <span>代墊款項無任何呆帳，且有完整記錄個人消費與協助付款金額，資產計算非常確實。</span>
+                </div>
+            </div>
+
+            <!-- Detailed Financial Insights & Recommendations -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80 lg:col-span-2 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
+                        理財診斷與優化建議
+                    </h3>
+                    <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md font-medium">專家觀察評估</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
+                    <!-- Point 1 -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-100 shadow-sm flex items-start gap-3">
+                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
+                            <i data-lucide="utensils" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">1. 日常伙食掌控良好</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                                10天內個人實質餐費僅 $1,380，平均每天不到 $138。即使包含 8/13 高級拉麵與全聯調酒，整體飲食開銷非常自律。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 2 -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-100 shadow-sm flex items-start gap-3">
+                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+                            <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">2. 親友補貼大幅減少非常規壓力</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                                8/07 剪髮支出 $1,050，後續獲得媽媽補貼 $1,100（涵蓋剪髮與按摩椅），有效對沖單次大額娛樂與雜項開銷。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 3 -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-100 shadow-sm flex items-start gap-3">
+                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0">
+                            <i data-lucide="coins" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">3. 現金盤點習慣建議</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                                8/14 現金出現 $415 盤點增額，代表平日有小額找零或忘記入帳。建議手邊現金交易隨手記帳，維持期末資產零落差。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 4 -->
+                    <div class="p-4 rounded-xl bg-white border border-slate-100 shadow-sm flex items-start gap-3">
+                        <div class="p-2 bg-amber-50 text-amber-600 rounded-lg shrink-0">
+                            <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">4. 儲蓄與資金流動比率配置</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                                永豐銀行 ($16,005) 與 LINE Bank ($10,725) 為主儲蓄庫（佔總資產66%），建議可善用 LINE Bank 活存高利讓閒置資金穩定發酵。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Ledger Interactive Table Section -->
+        <div class="glass-card rounded-2xl p-5 shadow-sm border border-slate-200/80">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="list" class="w-5 h-5 text-slate-700"></i>
+                        完整流水帳明細與標籤篩選
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">點擊分類或搜尋可快速篩選相關紀錄</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                        <input type="text" id="table-search" placeholder="搜尋項目或備註..." class="pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 w-44 sm:w-60">
+                    </div>
+
+                    <!-- Category Select -->
+                    <select id="category-filter" class="py-1.5 px-3 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="ALL">全部分類</option>
+                        <option value="食">食 (餐飲)</option>
+                        <option value="醫療/雜項">醫療/雜項</option>
+                        <option value="育樂">育樂</option>
+                        <option value="行">行 (交通)</option>
+                        <option value="衣">衣</option>
+                        <option value="收入">收入</option>
+                        <option value="代墊回收">代墊回收</option>
+                        <option value="內部轉帳">內部轉帳</option>
+                        <option value="初始資產">初始資產</option>
+                    </select>
+
+                    <!-- Account Select -->
+                    <select id="account-filter" class="py-1.5 px-3 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="ALL">全部帳戶</option>
+                        <option value="永豐銀行">永豐銀行</option>
+                        <option value="LINE Bank">LINE Bank</option>
+                        <option value="郵局">郵局</option>
+                        <option value="現金">現金</option>
+                        <option value="LINE Pay">LINE Pay</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-xs text-left text-slate-600">
+                    <thead class="bg-slate-100/80 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">日期 / 時間</th>
+                            <th class="py-3 px-4">支付帳戶</th>
+                            <th class="py-3 px-4">項目說明</th>
+                            <th class="py-3 px-4">分類標籤</th>
+                            <th class="py-3 px-4 text-right">交易金額</th>
+                            <th class="py-3 px-4">備註細節</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-rows" class="divide-y divide-slate-100 bg-white">
+                        <!-- Dynamic JS Generation -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between text-xs text-slate-500 px-1">
+                <span id="record-count">顯示 0 / 0 筆紀錄</span>
+                <span class="text-slate-400">系統自動過濾內部調撥不重複計入開支</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>個人財務記帳分析報告 · 智慧型自動精算儀表板</p>
+            <p class="text-slate-500">基於 2026/08/05 ～ 2026/08/14 記帳數據自動建置</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Raw dataset compiled from the user's uploaded ledger sheet
+        const rawTransactions = [
+            { id: 1, date: "2026-08-05", time: "14:19", account: "郵局", name: "郵局存款初始資產", category: "初始資產", amount: 11655, note: "郵局帳戶初始結餘" },
+            { id: 2, date: "2026-08-05", time: "14:38", account: "LINE Bank", name: "LINE Bank資產結餘", category: "初始資產", amount: 8725, note: "LINE Bank帳戶初始結餘" },
+            { id: 3, date: "2026-08-05", time: "14:56", account: "永豐銀行", name: "永豐銀行資產結餘", category: "初始資產", amount: 16005, note: "永豐銀行帳戶初始結餘" },
+            { id: 4, date: "2026-08-05", time: "16:11", account: "LINE Pay", name: "台北捷運乘車碼（港墘 ➔ 萬芳醫院）", category: "行", amount: -40, note: "LINE Pay扣款40元" },
+            { id: 5, date: "2026-08-05", time: "16:13", account: "LINE Pay", name: "LINE Pay資產結餘", category: "初始資產", amount: 353, note: "LINE Pay帳戶初始結餘" },
+            { id: 6, date: "2026-08-05", time: "16:50", account: "郵局", name: "郵局轉帳入帳", category: "收入", amount: 1010, note: "帳號末五碼96754" },
+            { id: 7, date: "2026-08-05", time: "17:30", account: "LINE Pay", name: "台北捷運乘車碼（萬芳醫院 ➔ 港墘）", category: "行", amount: -40, note: "LINE Pay扣款" },
+            { id: 8, date: "2026-08-05", time: "20:58", account: "現金", name: "現金資產結餘", category: "初始資產", amount: 3000, note: "現金手邊餘額" },
+            { id: 9, date: "2026-08-05", time: "21:00", account: "現金", name: "媽媽給的釜山旅遊預支金", category: "收入", amount: 600, note: "預支旅費（多退少補）" },
+            { id: 10, date: "2026-08-06", time: "10:51", account: "現金", name: "舒跑", category: "食", amount: -29, note: "飲料" },
+            { id: 11, date: "2026-08-06", time: "11:21", account: "現金", name: "午餐（含幫朋友代墊）", category: "食", amount: -320, note: "總付款320元 (含個人蛤仔煎80元，代墊240元)" },
+            { id: 12, date: "2026-08-06", time: "11:21", account: "現金", name: "朋友1午餐代墊款歸還", category: "代墊回收", amount: 150, note: "現金歸還" },
+            { id: 13, date: "2026-08-06", time: "11:21", account: "LINE Pay", name: "朋友2午餐代墊款歸還", category: "代墊回收", amount: 90, note: "LINE Pay轉帳" },
+            { id: 14, date: "2026-08-06", time: "19:30", account: "現金", name: "LA PASTA 義大利麵", category: "食", amount: -280, note: "晚餐" },
+            { id: 15, date: "2026-08-07", time: "12:56", account: "現金", name: "雨衣", category: "衣", amount: -49, note: "雨具" },
+            { id: 16, date: "2026-08-07", time: "13:08", account: "現金", name: "加油", category: "行", amount: -140, note: "加油費用" },
+            { id: 17, date: "2026-08-07", time: "14:52", account: "現金", name: "剪頭髮", category: "醫療/雜項", amount: -1050, note: "理髮服務" },
+            { id: 18, date: "2026-08-09", time: "08:58", account: "LINE Pay", name: "SORA 按摩椅-6121", category: "育樂", amount: -50, note: "按摩椅使用" },
+            { id: 19, date: "2026-08-09", time: "09:03", account: "LINE Pay", name: "SORA 按摩椅-7576", category: "育樂", amount: -50, note: "按摩椅使用" },
+            { id: 20, date: "2026-08-09", time: "09:11", account: "LINE Pay", name: "SORA 按摩椅-8654", category: "育樂", amount: -80, note: "按摩椅使用" },
+            { id: 21, date: "2026-08-09", time: "18:56", account: "郵局", name: "轉帳至 LINE Bank", category: "內部轉帳", originalCategory: "醫療/雜項", amount: -2000, note: "內部轉帳轉出（原記為雜項，已校正）" },
+            { id: 22, date: "2026-08-09", time: "18:56", account: "LINE Bank", name: "郵局轉帳入帳", category: "內部轉帳", originalCategory: "收入", amount: 2000, note: "內部轉帳轉入" },
+            { id: 23, date: "2026-08-10", time: "09:16", account: "郵局", name: "郵局消費回饋", category: "收入", amount: 21, note: "郵局帳戶消費回饋21元" },
+            { id: 24, date: "2026-08-10", time: "12:24", account: "現金", name: "計程車（車號 TEC1295）從國泰回家", category: "行", amount: -220, note: "現金車資220元（12:11-12:24, 里程5.8km）" },
+            { id: 25, date: "2026-08-10", time: "13:10", account: "現金", name: "公車（去國泰）", category: "行", amount: -15, note: "公車車資15元" },
+            { id: 26, date: "2026-08-10", time: "20:59", account: "現金", name: "媽媽給理髮與按摩椅補貼款", category: "收入", amount: 1100, note: "媽媽貼心補貼剪髮與按摩費用" },
+            { id: 27, date: "2026-08-12", time: "14:03", account: "現金", name: "涼麵", category: "食", amount: -45, note: "午餐涼麵45元" },
+            { id: 28, date: "2026-08-12", time: "19:46", account: "LINE Pay", name: "晚餐", category: "食", amount: -185, note: "晚餐185元" },
+            { id: 29, date: "2026-08-12", time: "20:09", account: "郵局", name: "轉帳至 LINE Pay", category: "內部轉帳", originalCategory: "醫療/雜項", amount: -200, note: "內部轉帳轉出（原記為雜項，已校正）" },
+            { id: 30, date: "2026-08-12", time: "20:09", account: "LINE Pay", name: "郵局轉帳儲值入帳", category: "內部轉帳", originalCategory: "收入", amount: 200, note: "內部轉帳轉入" },
+            { id: 31, date: "2026-08-12", time: "20:44", account: "郵局", name: "Foodpanda 薪資", category: "收入", amount: 1413, note: "Foodpanda工資入帳" },
+            { id: 32, date: "2026-08-12", time: "20:45", account: "LINE Pay", name: "台北捷運乘車碼（萬隆 ➔ 古亭）", category: "行", amount: -20, note: "捷運車資20元" },
+            { id: 33, date: "2026-08-12", time: "21:55", account: "LINE Pay", name: "台北捷運乘車碼（台電大樓 ➔ 文德）", category: "行", amount: -40, note: "捷運車資40元（獲得4P點）" },
+            { id: 34, date: "2026-08-12", time: "22:07", account: "現金", name: "全聯福利中心（調酒、飲料共3項）", category: "食", amount: -146, note: "全聯現金消費（KIRIN調酒、冰結檸檬、金橙紅柚）" },
+            { id: 35, date: "2026-08-13", time: "11:18", account: "現金", name: "角攀岩館中山店", category: "育樂", amount: -400, note: "攀岩館入場費400元" },
+            { id: 36, date: "2026-08-13", time: "12:10", account: "現金", name: "公車（公館山 ➔ 民權中山路）", category: "行", amount: -15, note: "公車車資15元" },
+            { id: 37, date: "2026-08-13", time: "12:30", account: "現金", name: "午餐（含幫朋友代墊）", category: "食", amount: -1130, note: "總付款1,130元 (含個人餐費335元，代墊795元)" },
+            { id: 38, date: "2026-08-13", time: "17:23", account: "LINE Pay", name: "朋友代墊午餐款歸還", category: "代墊回收", amount: 270, note: "午餐代墊款LINE Pay歸還270元" },
+            { id: 39, date: "2026-08-13", time: "17:52", account: "LINE Pay", name: "台北捷運乘車碼（新埔 ➔ 中山）", category: "行", amount: -25, note: "捷運車資25元（預計獲得3P點）" },
+            { id: 40, date: "2026-08-13", time: "18:23", account: "現金", name: "拉麵（晚餐）", category: "食", amount: -280, note: "晚餐拉麵280元" },
+            { id: 41, date: "2026-08-13", time: "19:24", account: "郵局", name: "誠品生活（邊緣工事市集）", category: "育樂", amount: -180, note: "誠品南西店市集消費180元（含20元回饋折扣）" },
+            { id: 42, date: "2026-08-13", time: "20:28", account: "LINE Pay", name: "朋友轉帳歸還", category: "代墊回收", amount: 290, note: "朋友LINE Pay轉帳290元" },
+            { id: 43, date: "2026-08-13", time: "20:56", account: "LINE Pay", name: "台北捷運乘車碼（中山 ➔ 港墘）", category: "行", amount: -30, note: "捷運車資30元（預計獲得3P點）" },
+            { id: 44, date: "2026-08-13", time: "23:36", account: "LINE Pay", name: "朋友餐費轉帳歸還（扣除止滑粉）", category: "代墊回收", amount: 235, note: "朋友LINE Pay歸還235元 (餐費260元扣除代買止滑粉25元)" },
+            { id: 45, date: "2026-08-14", time: "14:26", account: "現金", name: "現金盤點調整", category: "收入", amount: 415, note: "現金盤點差額調整 (調整後現金結餘$1,146)" }
+        ];
+
+        // Initialize Lucide Icons & Render Tables/Charts
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            initCharts();
+            renderTable();
+
+            // Filters Listener
+            document.getElementById('table-search').addEventListener('input', renderTable);
+            document.getElementById('category-filter').addEventListener('change', renderTable);
+            document.getElementById('account-filter').addEventListener('change', renderTable);
+        });
+
+        // Category Color Mapping
+        function getCategoryBadge(cat, originalCat) {
+            let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
+            if (cat === "食") badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+            else if (cat === "醫療/雜項") badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
+            else if (cat === "育樂") badgeClass = "bg-indigo-50 text-indigo-700 border-indigo-200";
+            else if (cat === "行") badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+            else if (cat === "衣") badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+            else if (cat === "收入") badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+            else if (cat === "代墊回收") badgeClass = "bg-teal-50 text-teal-700 border-teal-200";
+            else if (cat === "內部轉帳") badgeClass = "bg-slate-200 text-slate-800 border-slate-300";
+            else if (cat === "初始資產") badgeClass = "bg-gray-100 text-gray-600 border-gray-200";
+
+            let extraTag = originalCat ? `<span class="text-[10px] text-amber-600 block line-through">原:${originalCat}</span>` : '';
+
+            return `<div><span class="px-2 py-0.5 rounded-md border text-[11px] font-semibold ${badgeClass}">${cat}</span>${extraTag}</div>`;
+        }
+
+        // Render Table Function
+        function renderTable() {
+            const searchVal = document.getElementById('table-search').value.toLowerCase();
+            const catVal = document.getElementById('category-filter').value;
+            const accVal = document.getElementById('account-filter').value;
+
+            const tbody = document.getElementById('transaction-rows');
+            tbody.innerHTML = '';
+
+            let filtered = rawTransactions.filter(item => {
+                const matchSearch = item.name.toLowerCase().includes(searchVal) || item.note.toLowerCase().includes(searchVal);
+                const matchCat = catVal === 'ALL' || item.category === catVal;
+                const matchAcc = accVal === 'ALL' || item.account === accVal;
+                return matchSearch && matchCat && matchAcc;
+            });
+
+            document.getElementById('record-count').innerText = `顯示 ${filtered.length} / ${rawTransactions.length} 筆紀錄`;
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+
+                let amtClass = "text-slate-800 font-semibold";
+                let amtPrefix = "";
+                if (item.amount > 0) {
+                    amtClass = "text-emerald-600 font-bold";
+                    amtPrefix = "+";
+                } else if (item.amount < 0) {
+                    amtClass = "text-rose-600 font-bold";
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                        <div class="font-medium text-slate-700">${item.date}</div>
+                        <div class="text-[10px] text-slate-400">${item.time}</div>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="px-2 py-1 bg-slate-100 rounded text-[11px] font-medium text-slate-700 border border-slate-200/60">${item.account}</span>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-900">${item.name}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${getCategoryBadge(item.category, item.originalCategory)}</td>
+                    <td class="py-3 px-4 text-right font-mono ${amtClass} whitespace-nowrap">
+                        ${amtPrefix}$${Math.abs(item.amount).toLocaleString()}
+                    </td>
+                    <td class="py-3 px-4 text-slate-500 max-w-xs truncate" title="${item.note}">${item.note}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // 1. Category Expense Pie Chart (Pure Expenses)
+            const categoryCtx = document.getElementById('categoryPieChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['食 (餐飲)', '醫療/雜項', '育樂', '行 (交通)', '衣'],
+                    datasets: [{
+                        data: [1380, 1050, 760, 595, 49],
+                        backgroundColor: [
+                            '#22c55e', // Emerald
+                            '#64748b', // Slate
+                            '#6366f1', // Indigo
+                            '#f59e0b', // Amber
+                            '#a855f7'  // Purple
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = 3834;
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return ` $${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '68%'
+                }
+            });
+
+            // 2. Account Assets Comparison Bar Chart
+            const accountCtx = document.getElementById('accountBarChart').getContext('2d');
+            new Chart(accountCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['永豐銀行', 'LINE Bank', '郵局帳戶', '現金', 'LINE Pay'],
+                    datasets: [
+                        {
+                            label: '期初資產 (08/05)',
+                            data: [16005, 8725, 11655, 3000, 353],
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6
+                        },
+                        {
+                            label: '期末資產 (08/14)',
+                            data: [16005, 10725, 11719, 1146, 878],
+                            backgroundColor: '#22c55e',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                callback: function(val) { return '$' + val.toLocaleString(); }
+                            }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+<script>
+    // 1. 你的 GAS Web App API 網址
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzMOmuT-qyZzR3EW0H_7LZpAQ81r3sFCPR6uLzeXRVeHWrjV2FI8KMcgemoqg8k6AV1/exec";
+
+    let rawTransactions = [];
+    let categoryChartInstance = null;
+    let accountChartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        fetchLedgerData();
+
+        // 篩選器監聽事件
+        document.getElementById('table-search').addEventListener('input', renderTable);
+        document.getElementById('category-filter').addEventListener('change', renderTable);
+        document.getElementById('account-filter').addEventListener('change', renderTable);
+    });
+
+    // 非同步抓取 Google Sheets 資料
+    async function fetchLedgerData() {
+        const countEl = document.getElementById('record-count');
+        if (countEl) countEl.innerText = "連線 Google Sheets 同步中...";
+
+        try {
+            const response = await fetch(GAS_API_URL);
+            const result = await response.json();
+
+            if (result.status === "success" && Array.isArray(result.data)) {
+                rawTransactions = result.data;
+                if (countEl) countEl.innerText = `資料同步完成，共 ${rawTransactions.length} 筆紀錄`;
+                
+                // 自動精算指標、圖表與表格
+                calculateKPIs();
+                initOrUpdateCharts();
+                renderTable();
+            } else {
+                throw new Error(result.message || "資料解析異常");
+            }
+        } catch (err) {
+            console.error("載入失敗：", err);
+            if (countEl) countEl.innerText = "❌ 無法載入試算表資料，請檢查網路或 API 部署設定。";
+        }
+    }
+
+    // 動態精算指標 (KPIs)
+    function calculateKPIs() {
+        let totalAssets = 0;
+        let realIncome = 0;
+        let pureExpense = 0;
+        let foodExpense = 0;
+
+        rawTransactions.forEach(item => {
+            const amt = item.amount;
+            totalAssets += amt; // 包含初始資產與所有收支結餘
+
+            if (item.category === "收入") {
+                realIncome += amt;
+            } else if (item.category === "食") {
+                foodExpense += Math.abs(amt);
+                pureExpense += Math.abs(amt);
+            } else if (!["初始資產", "內部轉帳", "代墊回收", "收入"].includes(item.category)) {
+                pureExpense += Math.abs(amt);
+            }
+        });
+
+        // 更新 KPI 卡片數值
+        const kpiNetWorth = document.getElementById('kpi-net-worth');
+        const kpiRealIncome = document.getElementById('kpi-real-income');
+        const kpiPureExpense = document.getElementById('kpi-pure-expense');
+
+        if (kpiNetWorth) kpiNetWorth.innerText = `$${totalAssets.toLocaleString()}`;
+        if (kpiRealIncome) kpiRealIncome.innerText = `$${realIncome.toLocaleString()}`;
+        if (kpiPureExpense) kpiPureExpense.innerText = `$${pureExpense.toLocaleString()}`;
+    }
+
+    // 渲染與更新圖表
+    function initOrUpdateCharts() {
+        // 1. 彙總各類別純支出
+        const catTotals = {};
+        rawTransactions.forEach(item => {
+            if (!["初始資產", "內部轉帳", "代墊回收", "收入"].includes(item.category) && item.amount < 0) {
+                catTotals[item.category] = (catTotals[item.category] || 0) + Math.abs(item.amount);
+            }
+        });
+
+        const pieLabels = Object.keys(catTotals);
+        const pieData = Object.values(catTotals);
+
+        // 類別支出圓餅圖
+        const catCanvas = document.getElementById('categoryPieChart');
+        if (catCanvas) {
+            const catCtx = catCanvas.getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+            categoryChartInstance = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: pieLabels.length ? pieLabels : ['無支出資料'],
+                    datasets: [{
+                        data: pieData.length ? pieData : [1],
+                        backgroundColor: ['#22c55e', '#64748b', '#6366f1', '#f59e0b', '#a855f7', '#ec4899', '#3b82f6'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        // 2. 彙總各帳戶最新結餘
+        const accTotals = {};
+        rawTransactions.forEach(item => {
+            accTotals[item.account] = (accTotals[item.account] || 0) + item.amount;
+        });
+
+        // 帳戶結餘柱狀圖
+        const accCanvas = document.getElementById('accountBarChart');
+        if (accCanvas) {
+            const accCtx = accCanvas.getContext('2d');
+            if (accountChartInstance) accountChartInstance.destroy();
+            accountChartInstance = new Chart(accCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(accTotals),
+                    datasets: [{
+                        label: '當前帳戶結餘',
+                        data: Object.values(accTotals),
+                        backgroundColor: '#22c55e',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: val => '$' + val.toLocaleString() }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // 標籤樣式
+    function getCategoryBadge(cat) {
+        let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
+        if (cat === "食") badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        else if (cat === "醫療/雜項") badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
+        else if (cat === "育樂") badgeClass = "bg-indigo-50 text-indigo-700 border-indigo-200";
+        else if (cat === "行") badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+        else if (cat === "衣") badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+        else if (cat === "收入") badgeClass = "bg-blue-50 text-blue-700 border-blue-200";
+        else if (cat === "代墊回收") badgeClass = "bg-teal-50 text-teal-700 border-teal-200";
+        else if (cat === "內部轉帳") badgeClass = "bg-slate-200 text-slate-800 border-slate-300";
+        else if (cat === "初始資產") badgeClass = "bg-gray-100 text-gray-600 border-gray-200";
+        return `<span class="px-2 py-0.5 rounded-md border text-[11px] font-semibold ${badgeClass}">${cat}</span>`;
+    }
+
+    // 渲染明細表格
+    function renderTable() {
+        const searchVal = document.getElementById('table-search')?.value.toLowerCase() || '';
+        const catVal = document.getElementById('category-filter')?.value || 'ALL';
+        const accVal = document.getElementById('account-filter')?.value || 'ALL';
+
+        const tbody = document.getElementById('transaction-rows');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const filtered = rawTransactions.filter(item => {
+            const matchSearch = item.name.toLowerCase().includes(searchVal) || item.note.toLowerCase().includes(searchVal);
+            const matchCat = catVal === 'ALL' || item.category === catVal;
+            const matchAcc = accVal === 'ALL' || item.account === accVal;
+            return matchSearch && matchCat && matchAcc;
+        });
+
+        const recordCountEl = document.getElementById('record-count');
+        if (recordCountEl) {
+            recordCountEl.innerText = `顯示 ${filtered.length} / ${rawTransactions.length} 筆紀錄`;
+        }
+
+        filtered.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/80 transition-colors";
+
+            let amtClass = item.amount > 0 ? "text-emerald-600 font-bold" : "text-rose-600 font-bold";
+            let amtPrefix = item.amount > 0 ? "+" : "";
+
+            tr.innerHTML = `
+                <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                    <div class="font-medium text-slate-700">${item.date}</div>
+                    <div class="text-[10px] text-slate-400">${item.time}</div>
+                </td>
+                <td class="py-3 px-4 whitespace-nowrap">
+                    <span class="px-2 py-1 bg-slate-100 rounded text-[11px] font-medium text-slate-700 border border-slate-200/60">${item.account}</span>
+                </td>
+                <td class="py-3 px-4 font-medium text-slate-900">${item.name}</td>
+                <td class="py-3 px-4 whitespace-nowrap">${getCategoryBadge(item.category)}</td>
+                <td class="py-3 px-4 text-right font-mono ${amtClass} whitespace-nowrap">
+                    ${amtPrefix}$${Math.abs(item.amount).toLocaleString()}
+                </td>
+                <td class="py-3 px-4 text-slate-500 max-w-xs truncate" title="${item.note}">${item.note}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+</script>
