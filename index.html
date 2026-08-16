@@ -235,7 +235,7 @@
 
     <!-- JavaScript Logic -->
     <script>
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzMOmuT-qyZzR3EW0H_7LZpAQ81r3sFCPR6uLzeXRVeHWrjV2FI8KMcgemoqg8k6AV1/exec";
+        const GAS_API_URL = "網頁應用程式網址";
 
         let rawTransactions = [];
         let categoryChartInstance = null;
@@ -250,17 +250,15 @@
             document.getElementById('account-filter').addEventListener('change', renderTable);
         });
 
-        async function fetchLedgerData() {
+        function fetchLedgerData() {
             const countEl = document.getElementById('record-count');
             const syncStatus = document.getElementById('sync-status');
             if (countEl) countEl.innerText = "連線 Google Sheets 同步中...";
 
-            try {
-                const response = await fetch(GAS_API_URL);
-                const result = await response.json();
-
-                if (result.status === "success" && Array.isArray(result.data)) {
-                    rawTransactions = result.data;
+            // 使用 Google 原生 API 呼叫 Code.gs 的 getSheetData()
+            google.script.run
+                .withSuccessHandler((data) => {
+                    rawTransactions = data;
                     if (countEl) countEl.innerText = `資料同步完成，共 ${rawTransactions.length} 筆紀錄`;
                     if (syncStatus) syncStatus.innerText = "資料已同步最新記帳版本";
 
@@ -269,14 +267,13 @@
                     calculateKPIs();
                     initOrUpdateCharts();
                     renderTable();
-                } else {
-                    throw new Error(result.message || "資料解析異常");
-                }
-            } catch (err) {
-                console.error("載入失敗：", err);
-                if (countEl) countEl.innerText = "❌ 無法載入試算表資料，請確認 GAS 部署權限為「所有人」。";
-                if (syncStatus) syncStatus.innerText = "連線失敗";
-            }
+                })
+                .withFailureHandler((err) => {
+                    console.error("載入失敗：", err);
+                    if (countEl) countEl.innerText = "❌ 載入試算表資料失敗";
+                    if (syncStatus) syncStatus.innerText = "連線失敗";
+                })
+                .getSheetData();
         }
 
         function populateFilterOptions() {
